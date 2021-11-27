@@ -99,7 +99,7 @@ def denoising_autoencoder(data):
     # Decoder
     dropout_decoder = Sequential([Dense(10, activation="swish"), Dense(20, activation="swish"), Dense(data.shape[1], activation="swish")])
     DAE = Sequential([dropout_encoder, dropout_decoder])
-    DAE.compile(loss='mse', optimizer=Adam(learning_rate=0.01), metrics=['accuracy'])
+    DAE.compile(loss='mse', optimizer=Adam(learning_rate=0.0001), metrics=['accuracy'])
 
     return DAE
 
@@ -109,8 +109,10 @@ DAE_LH = denoising_autoencoder(CN7_650T_LH)
 DAE_RH = denoising_autoencoder(CN7_650T_RH)
 
 # 모델 훈련
-history_LH = DAE_LH.fit(CN7_650T_LH, CN7_650T_LH, batch_size=30, epochs=30, validation_split=0.2, callbacks=[EarlyStopping(monitor="val_loss", patience=7, mode='min')])
-history_RH = DAE_RH.fit(CN7_650T_RH, CN7_650T_RH, batch_size=30, epochs=30, validation_split=0.2, callbacks=[EarlyStopping(monitor="val_loss", patience=7, mode='min')])
+# history_LH = DAE_LH.fit(CN7_650T_LH, CN7_650T_LH, batch_size=30, epochs=30, validation_split=0.2, callbacks=[EarlyStopping(monitor="val_loss", patience=7, mode='min')])
+# history_RH = DAE_RH.fit(CN7_650T_RH, CN7_650T_RH, batch_size=30, epochs=30, validation_split=0.2, callbacks=[EarlyStopping(monitor="val_loss", patience=7, mode='min')])
+history_LH = DAE_LH.fit(CN7_650T_LH, CN7_650T_LH, batch_size=100, epochs=500, validation_split=0.2)
+history_RH = DAE_RH.fit(CN7_650T_RH, CN7_650T_RH, batch_size=100, epochs=500, validation_split=0.2)
 
 
 def training_visualize(model_his):
@@ -125,7 +127,6 @@ def training_visualize(model_his):
     sub.legend()
 
 
-#
 def defective_decision(DAE, train_data, test_data):
     # 학습 데이터 예측값
     pred = DAE.predict(train_data)
